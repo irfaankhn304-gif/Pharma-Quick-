@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#17998A">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>PharmaQuick: Important Drugs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F7F6;--surface:#FFFFFF;--ink:#10303A;--muted:#58737B;--line:#D5E3E1;
+  --pain:#E2553A;--abx:#17998A;--dia:#D99A12;--gi:#6A5BD6;
+  --pain-t:#FDECE8;--abx-t:#E3F5F2;--dia-t:#FBF1D9;--gi-t:#ECE9FB;--cg:#2F80D0;--cg-t:#E2EEFA;--cv:#D6336C;--cv-t:#FCE7F0;--al:#9C36B5;--al-t:#F6E8FA;--inf:#5C7C2A;--inf-t:#EDF3E0;--bl:#B3202A;--bl-t:#FDE8E8;--cn:#0C8599;--cn-t:#E1F4F8;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0D1C21;--surface:#14282F;--ink:#E6F1F0;--muted:#92AAB0;--line:#25414A;
+  --pain:#FF7A60;--abx:#3CC7B6;--dia:#F0B63A;--gi:#9A8CFF;
+  --pain-t:#33201F;--abx-t:#143230;--dia-t:#33290F;--gi-t:#25224A;--cg:#5BA8FF;--cg-t:#15293F;--cv:#FF7FAE;--cv-t:#3A1B2A;--al:#D68BF0;--al-t:#2F1B3A;--inf:#A8C96A;--inf-t:#2A3319;--bl:#FF8A8A;--bl-t:#3A1E1E;--cn:#5FD0E6;--cn-t:#173038;}}
+:root[data-theme="dark"]{
+  --bg:#0D1C21;--surface:#14282F;--ink:#E6F1F0;--muted:#92AAB0;--line:#25414A;
+  --pain:#FF7A60;--abx:#3CC7B6;--dia:#F0B63A;--gi:#9A8CFF;
+  --pain-t:#33201F;--abx-t:#143230;--dia-t:#33290F;--gi-t:#25224A;--cg:#5BA8FF;--cg-t:#15293F;--cv:#FF7FAE;--cv-t:#3A1B2A;--al:#D68BF0;--al-t:#2F1B3A;--inf:#A8C96A;--inf-t:#2A3319;--bl:#FF8A8A;--bl-t:#3A1E1E;--cn:#5FD0E6;--cn-t:#173038;}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 Figtree,system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:1020px;margin:0 auto;padding:28px 18px 56px}
+header{display:flex;flex-direction:column;gap:6px;margin-bottom:22px}
+h1{font:800 clamp(34px,7vw,60px)/1 "Bricolage Grotesque",Georgia,serif;margin:0;letter-spacing:-.02em}
+.sub{font:500 clamp(17px,3vw,22px)/1.3 "Bricolage Grotesque",Georgia,serif;color:var(--muted);margin:0}
+.credit{font-size:13px;color:var(--muted);margin-top:4px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 20px}
+.chip{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:600 14px Figtree,system-ui,sans-serif;padding:8px 14px;border-radius:999px;cursor:pointer;display:flex;align-items:center;gap:7px}
+.chip i{width:10px;height:10px;border-radius:50%;background:var(--c,var(--ink))}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip:focus-visible,.card:focus-visible{outline:3px solid var(--abx);outline-offset:2px}
+.grid{display:grid;grid-template-columns:1fr;gap:14px}
+@media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px 18px 16px 22px;position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:8px;background:var(--c)}
+.card[hidden]{display:none}
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+h2{font:700 25px/1.1 "Bricolage Grotesque",Georgia,serif;margin:0;color:var(--c)}
+.cat{font-size:12.5px;font-weight:600;color:var(--c);background:var(--t);padding:3px 10px;border-radius:999px;white-space:nowrap}
+.strengths{display:flex;gap:8px;margin:12px 0 8px;flex-wrap:wrap}
+.pill{font:700 14px Figtree,sans-serif;background:var(--t);color:var(--ink);padding:5px 14px;border-radius:999px 999px 999px 999px;position:relative;border:1.5px solid var(--c)}
+.forms{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.form{font-size:13px;color:var(--muted);border:1px dashed var(--line);padding:2px 9px;border-radius:6px}
+ul.uses{list-style:none;margin:0;padding:12px 0 0;border-top:1px solid var(--line);display:grid;gap:5px}
+.uses li{padding-left:18px;position:relative;font-weight:500}
+.uses li::before{content:"";position:absolute;left:2px;top:.58em;width:7px;height:7px;border-radius:50%;background:var(--c)}
+.remind{margin-top:34px;background:var(--ink);color:var(--bg);border-radius:24px;padding:26px 22px 24px}
+.remind h3{font:800 28px/1.1 "Bricolage Grotesque",Georgia,serif;margin:0 0 16px}
+.forms-list{display:grid;gap:10px;grid-template-columns:1fr}
+@media(min-width:720px){.forms-list{grid-template-columns:1fr 1fr}}
+.fr{display:flex;gap:12px;align-items:baseline;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.09)}
+.fr b{font:700 18px "Bricolage Grotesque",Georgia,serif;min-width:92px}
+.fr span{font-size:15px;opacity:.92}
+.rule{margin-top:20px;padding-top:18px;border-top:2px dashed rgba(255,255,255,.35);display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;font:700 clamp(17px,3.6vw,24px)/1.2 "Bricolage Grotesque",Georgia,serif}
+.rule em{font-style:normal;opacity:.6}
+.rule .end{color:#7FE3D4}
+.themebtn{align-self:flex-start;margin-top:10px;background:none;border:1.5px solid var(--line);color:var(--muted);border-radius:999px;padding:6px 12px;font:500 13px Figtree,sans-serif;cursor:pointer}
+@media(prefers-reduced-motion:no-preference){.card{transition:transform .15s}.card:hover{transform:translateY(-2px)}}
+
+[hidden]{display:none!important}
+.tabs{display:flex;gap:6px;background:var(--surface);border:1px solid var(--line);padding:5px;border-radius:999px;align-self:flex-start;margin-top:10px}
+.tab{border:0;background:none;color:var(--muted);font:700 15px Figtree,system-ui,sans-serif;padding:9px 20px;border-radius:999px;cursor:pointer}
+.tab[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.dzl{display:grid;gap:12px}
+details.dz{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;position:relative}
+details.dz::before{content:"";position:absolute;left:0;top:0;bottom:0;width:8px;background:var(--c)}
+details.dz summary{list-style:none;cursor:pointer;padding:16px 18px 16px 24px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.dz summary::-webkit-details-marker{display:none}
+details.dz summary::after{content:"+";font:700 24px Figtree,sans-serif;color:var(--c)}
+details.dz[open] summary::after{content:"\2212"}
+.dzt{font:700 22px/1.15 "Bricolage Grotesque",Georgia,serif;color:var(--c)}
+.dzd{font-size:13.5px;color:var(--muted);margin-top:2px}
+.med{padding:12px 18px 12px 24px;border-top:1px solid var(--line);display:grid;gap:3px}
+.med b{font:700 17px "Bricolage Grotesque",Georgia,serif}
+.med .k{font-size:12.5px;font-weight:600;color:var(--c);background:var(--t);padding:2px 9px;border-radius:999px;margin-left:8px;white-space:nowrap}
+.med .dose{font-weight:600}
+.med .dose::before{content:"Dose: ";color:var(--muted);font-weight:500}
+.med .nt{font-size:14.5px;color:var(--muted)}
+.disc{margin:14px 0 0;font-size:13.5px;color:var(--muted);padding:12px 14px;border:1px dashed var(--line);border-radius:12px}
+.x{font-size:14.5px;line-height:1.45;margin-top:2px}.x b{color:var(--c);font-weight:700}.cardx{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);display:grid;gap:5px}
+.srch{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding:8px 0 10px}
+.srch input{width:100%;font:500 16px Figtree,system-ui,sans-serif;padding:12px 16px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink)}
+.tabs{max-width:100%;overflow-x:auto;gap:2px}.tab{white-space:nowrap;padding:9px 8px;font-size:13.5px}
+.cnt{font-size:13.5px;color:var(--muted);margin:2px 0 12px}
+.doc{font-size:12.5px;font-weight:700;color:#fff;background:var(--c);padding:2px 10px;border-radius:999px;margin-left:8px}
+.alt{font-size:12.5px;font-weight:600;color:var(--muted);border:1px solid var(--line);padding:1px 9px;border-radius:999px;margin-left:8px}
+.ex{background:var(--t);border-radius:12px;padding:12px 14px;margin:0 18px 12px 24px;font-size:15px}
+.ex b{color:var(--c)}
+.dchips{display:flex;flex-wrap:wrap;gap:8px;padding:4px 18px 16px 24px}
+.dchip{border:1.5px solid var(--c);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 13px;font:600 14px Figtree,sans-serif;cursor:pointer}
+.qh{display:flex;justify-content:space-between;font-weight:600;color:var(--muted);margin-bottom:12px}
+.qq{font:700 clamp(20px,4.5vw,27px)/1.25 "Bricolage Grotesque",Georgia,serif;margin:0 0 16px}
+.opt{display:block;width:100%;text-align:left;margin-bottom:10px;padding:14px 16px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:600 16px Figtree,sans-serif;cursor:pointer}
+.opt.ok{border-color:var(--abx);background:var(--abx-t)}.opt.no{border-color:var(--pain);background:var(--pain-t)}
+.nx{margin-top:6px;border:0;background:var(--ink);color:var(--bg);border-radius:999px;padding:12px 26px;font:700 16px Figtree,sans-serif;cursor:pointer}
+.big{font:800 54px "Bricolage Grotesque",Georgia,serif;margin:6px 0}
+.hero{background:linear-gradient(135deg,#0E2238 0%,#126B66 62%,#17998A 100%);color:#fff;border-radius:26px;padding:24px 20px 18px;margin-bottom:14px;gap:10px;box-shadow:0 10px 30px rgba(14,34,56,.25)}
+.hero h1{color:#fff}.hero .sub{color:#CFE9E6}.hero .themebtn{color:#CFE9E6;border-color:rgba(255,255,255,.35)}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}.st{background:rgba(255,255,255,.14);border-radius:14px;padding:8px 16px;font-size:13px}.st b{display:block;font:800 24px "Bricolage Grotesque",Georgia,serif}
+.gh{font:800 22px "Bricolage Grotesque",Georgia,serif;color:var(--c);margin:24px 0 10px}
+.card{box-shadow:0 2px 10px rgba(16,48,58,.06)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero"><h1>PharmaQuick</h1><p class="sub">Pharmacology quick revision</p><div class="stats" id="stats"></div><button class="themebtn" id="tb" type="button">Switch light / dark</button></header>
+<div class="tabs" id="tabs" role="group" aria-label="Sections"><button class="tab" type="button" data-v="drugs" aria-pressed="true">All drugs</button><button class="tab" type="button" data-v="cls" aria-pressed="false">Classification</button><button class="tab" type="button" data-v="dz" aria-pressed="false">Diseases</button><button class="tab" type="button" data-v="quiz" aria-pressed="false">Quiz</button></div>
+<div class="srch" id="sw"><input id="q" type="search" placeholder="Search drug, class, disease or use" autocomplete="off"></div>
+<main id="view"></main>
+<p class="disc">For study only. Doses are typical adult doses and vary with age, weight, kidney and liver function. Verify with a standard reference (BNF, KD Tripathi, NTEP / national guidelines).</p>
+<section class="remind" id="rem" aria-label="Quick reminder">
+  <h3>Quick reminder</h3>
+  <div class="forms-list">
+    <div class="fr"><b>Tablet</b><span>Oral use</span></div>
+    <div class="fr"><b>Syrup</b><span>Liquid (children / elderly)</span></div>
+    <div class="fr"><b>Capsule</b><span>Oral (acid resistant / delayed)</span></div>
+    <div class="fr"><b>Injection</b><span>Faster action (as per indication)</span></div>
+  </div>
+  <div class="rule"><span>Right drug</span><em>+</em><span>Right dose</span><em>+</em><span>Right time</span><em>=</em><span class="end">Better health ♥</span></div>
+</section>
+</div>
+<script>
+var cats={pain:["Pain &amp; fever","--pain","--pain-t"],abx:["Antibiotics","--abx","--abx-t"],dia:["Diabetes","--dia","--dia-t"],gi:["Stomach &amp; nausea","--gi","--gi-t"],cg:["Cough (antitussive)","--cg","--cg-t"]};
+var D=[
+["Paracetamol","pain",["500 mg","650 mg"],["Tablet","Syrup","IV"],["Fever","Mild to moderate pain","Headache, body ache"]],
+["Ibuprofen","pain",["200 mg","400 mg"],["Tablet","Suspension"],["Pain","Inflammation","Fever"]],
+["Amoxicillin","abx",["250 mg","500 mg"],["Capsule","Syrup","Injection"],["Bacterial infections","Respiratory tract infection","Ear, throat, skin infection"]],
+["Cefixime","abx",["200 mg","400 mg"],["Tablet","Dry syrup"],["Bacterial infections","UTI, respiratory, typhoid","Ear infection"]],
+["Metformin","dia",["500 mg","850 mg"],["Tablet"],["Type 2 diabetes","Insulin resistance","PCOS (off-label)"]],
+["Omeprazole","gi",["20 mg","40 mg"],["Capsule","Tablet","Injection"],["Acid reflux","GERD","Stomach ulcer"]],
+["Ondansetron","gi",["4 mg","8 mg"],["Tablet","Injection"],["Nausea and vomiting","Chemotherapy induced vomiting","Post-operative nausea"]],
+["Azithromycin","abx",["250 mg","500 mg"],["Tablet","Suspension"],["Bacterial infections","Respiratory tract infection","Skin and soft tissue infection"]],
+["Dextromethorphan","cg",["10 mg","15 mg"],["Syrup","Tablet","Lozenge"],["Dry cough (antitussive)","Cough due to cold and flu"]],
+["Levodropropizine","cg",["60 mg"],["Syrup","Tablet"],["Dry irritating cough","Peripheral antitussive"]],
+["Ambroxol","cg",["30 mg"],["Tablet","Syrup"],["Productive cough","Thick mucus (mucolytic)"]]];
+var X={
+"Paracetamol":["Inhibits central COX and acts on the hypothalamic heat-regulating centre","Rare at normal dose; liver damage in overdose","Severe liver disease, chronic alcohol use, overdose","Analgesic / antipyretic"],
+"Ibuprofen":["Blocks COX-1 and COX-2, lowering prostaglandins","Gastric irritation, ulcer, kidney strain","Peptic ulcer, kidney disease, asthma, last trimester of pregnancy","NSAID"],
+"Amoxicillin":["Inhibits bacterial cell wall synthesis (binds PBPs)","Diarrhea, rash, allergy","Penicillin allergy","Penicillin antibiotic"],
+"Cefixime":["Inhibits bacterial cell wall synthesis","Diarrhea, nausea, rash","Cephalosporin or severe penicillin allergy; reduce dose in kidney disease","3rd generation cephalosporin"],
+"Metformin":["Reduces liver glucose output and improves insulin sensitivity (AMPK)","Nausea, diarrhea, metallic taste, B12 deficiency, rare lactic acidosis","Severe kidney or liver disease, heart failure, before contrast dye, heavy alcohol","Biguanide (antidiabetic)"],
+"Omeprazole":["Irreversibly blocks H+/K+ ATPase (proton pump) in parietal cells","Headache, diarrhea; long use: low Mg and B12, fractures","Caution in liver disease; avoid long unsupervised use","Proton pump inhibitor"],
+"Ondansetron":["Blocks 5-HT3 receptors in gut and chemoreceptor trigger zone","Headache, constipation, QT prolongation","Long QT syndrome; caution with other QT-prolonging drugs","5-HT3 antagonist (antiemetic)"],
+"Azithromycin":["Binds 50S ribosome and blocks bacterial protein synthesis","Nausea, diarrhea, QT prolongation","Liver disease, long QT, macrolide allergy","Macrolide antibiotic"],
+"Dextromethorphan":["Suppresses cough centre in medulla (NMDA antagonist, sigma-1 agonist)","Drowsiness, dizziness, nausea; hallucinations at high dose","With MAO inhibitors or SSRIs (serotonin syndrome), wet cough, asthma, children under 4","Antitussive (central, non-opioid)"],
+"Levodropropizine":["Acts on peripheral airway C-fibre nerves, reducing the cough reflex","Drowsiness, nausea, rare palpitations","Wet cough with heavy secretions, severe liver or kidney impairment, children under 2","Antitussive (peripheral)"],
+"Ambroxol":["Breaks mucus bonds and stimulates surfactant, thinning secretions","GI upset, rash","Peptic ulcer (caution), first trimester","Mucolytic / expectorant"],
+"Amlodipine":["Blocks L-type calcium channels, relaxing arteries","Ankle edema, flushing, headache","Severe aortic stenosis, low BP; caution in liver disease"],
+"Telmisartan":["Blocks AT1 receptors so angiotensin II cannot constrict vessels","Dizziness, high potassium","Pregnancy, bilateral renal artery stenosis, high potassium"],
+"Losartan":["Blocks AT1 receptors so angiotensin II cannot constrict vessels","Dizziness, high potassium, kidney changes","Pregnancy, bilateral renal artery stenosis, high potassium"],
+"Enalapril":["Blocks ACE: less angiotensin II, more bradykinin","Dry cough, angioedema, high potassium","Pregnancy, history of angioedema, renal artery stenosis"],
+"Hydrochlorothiazide":["Blocks Na-Cl cotransporter in distal tubule, increasing urine output","Low K+ and Na+, high uric acid and sugar","Gout, severe kidney failure, sulfa allergy"],
+"Atenolol":["Selective beta-1 blocker: slows heart rate, lowers cardiac output","Fatigue, slow pulse, cold hands","Asthma, heart block, severe bradycardia; never stop suddenly"],
+"Glimepiride":["Closes pancreatic K-ATP channels, increasing insulin release","Hypoglycemia, weight gain","Type 1 diabetes, ketoacidosis, severe liver or kidney disease"],
+"Sitagliptin":["Inhibits DPP-4, raising incretins and glucose-dependent insulin","Headache, sore throat, rare pancreatitis","History of pancreatitis; adjust dose in kidney disease"],
+"Pioglitazone":["Activates PPAR-gamma, improving insulin sensitivity","Weight gain, fluid retention, fractures","Heart failure, bladder cancer history, liver disease"],
+"Empagliflozin":["Blocks SGLT2 in kidney so glucose is lost in urine","Genital and urinary infections, dehydration","Type 1 diabetes, ketoacidosis risk, severe kidney disease"],
+"Amoxicillin + Clavulanate":["Amoxicillin blocks cell wall synthesis; clavulanate blocks beta-lactamase","Diarrhea, rash, liver injury","Penicillin allergy, past jaundice from this drug"],
+"Doxycycline":["Binds 30S ribosome, blocking bacterial protein synthesis","Photosensitivity, esophagitis, nausea","Pregnancy, children under 8, severe liver disease"],
+"Levofloxacin":["Inhibits DNA gyrase and topoisomerase IV","Tendon rupture, QT prolongation, CNS effects","Pregnancy, children, epilepsy, myasthenia gravis"],
+"Nitrofurantoin":["Reactive intermediates damage bacterial DNA and proteins","Nausea; lung and nerve toxicity in long use","Kidney failure, late pregnancy, G6PD deficiency"],
+"Ciprofloxacin":["Inhibits bacterial DNA gyrase and topoisomerase IV","Tendon rupture, nausea, QT prolongation","Pregnancy, children, epilepsy, myasthenia gravis"],
+"Fosfomycin":["Blocks MurA enzyme, an early step of cell wall synthesis","Diarrhea, headache","Severe kidney impairment, allergy"],
+"Co-trimoxazole":["Sequential block of folate synthesis (sulfamethoxazole + trimethoprim)","Rash, high potassium, bone marrow suppression","Sulfa allergy, G6PD deficiency, pregnancy, severe liver or kidney disease"],
+"Salbutamol":["Stimulates beta-2 receptors, relaxing bronchial smooth muscle","Tremor, palpitations, low potassium","Caution in heart disease, hyperthyroidism, diabetes"],
+"Budesonide":["Inhaled steroid reducing airway inflammation via gene regulation","Oral thrush, hoarse voice","Untreated lung infection (e.g. TB); not for acute relief"],
+"Formoterol":["Long-acting beta-2 agonist, sustained bronchodilation","Tremor, palpitations","Never alone in asthma; caution in heart disease"],
+"Montelukast":["Blocks cysteinyl leukotriene (CysLT1) receptors","Headache, mood changes, sleep disturbance","History of neuropsychiatric events; not for acute attack"],
+"Ipratropium":["Blocks muscarinic receptors, reducing bronchoconstriction","Dry mouth, urinary retention","Angle-closure glaucoma, enlarged prostate"],
+"Prednisolone":["Corticosteroid: suppresses inflammatory genes and immune response","High sugar, fluid retention, mood change, ulcer (long use)","Active systemic infection, uncontrolled diabetes; caution in peptic ulcer"],
+"Pantoprazole":["Irreversibly blocks the proton pump (H+/K+ ATPase)","Headache, diarrhea; long use: low Mg and B12","Caution in liver disease; avoid long unsupervised use"],
+"Rabeprazole":["Irreversibly blocks the proton pump (H+/K+ ATPase)","Headache, diarrhea, abdominal pain","Caution in liver disease; avoid long unsupervised use"],
+"Famotidine":["Blocks H2 receptors, reducing acid secretion","Headache, constipation","Reduce dose in kidney disease"],
+"Sucralfate":["Forms a protective paste over the ulcer base","Constipation; aluminium build-up in kidney failure","Kidney failure; keep 2 h apart from other drugs"],
+"Antacid":["Neutralises gastric acid","Constipation (Al), diarrhea (Mg)","Kidney disease; reduces absorption of other drugs"],
+"Cetirizine":["Blocks peripheral H1 receptors","Drowsiness, dry mouth","Severe kidney disease (adjust dose); caution with alcohol"],
+"Levocetirizine":["Blocks peripheral H1 receptors","Drowsiness, dry mouth, tiredness","Severe kidney disease; caution with alcohol"],
+"Fexofenadine":["Selective peripheral H1 blocker","Headache, nausea","Avoid with fruit juice; caution in kidney disease"],
+"Loratadine":["Blocks peripheral H1 receptors","Headache, dry mouth","Severe liver disease (adjust dose)"],
+"Chlorpheniramine":["H1 blocker that crosses the blood-brain barrier","Sedation, dry mouth, urinary retention","Glaucoma, enlarged prostate, newborns; avoid when driving"],
+"Chloroquine":["Blocks parasite heme polymerisation so toxic heme builds up","Nausea, itching, retinopathy (long use)","Retinal disease, epilepsy, psoriasis"],
+"Primaquine":["Generates reactive oxygen species that kill liver hypnozoites","Hemolysis in G6PD deficiency, GI upset","G6PD deficiency, pregnancy, infants"],
+"Artemether + Lumefantrine":["Artemether forms free radicals from heme iron; lumefantrine blocks heme detox","Headache, dizziness, QT prolongation","Long QT, other QT drugs, early pregnancy (if alternatives exist)"],
+"Artesunate":["Heme-activated free radicals kill parasites rapidly","Delayed hemolysis, dizziness","Known allergy; monitor Hb after treatment"],
+"Quinine":["Inhibits parasite heme polymerisation","Cinchonism (ringing in ears), hypoglycemia, QT prolongation","Long QT, optic neuritis, G6PD deficiency, myasthenia gravis"],
+"Ferrous sulfate":["Replaces iron needed for hemoglobin synthesis","Constipation, dark stools, nausea","Hemochromatosis, non-iron-deficiency anemia, active peptic ulcer"],
+"Ferrous ascorbate":["Replaces iron needed for hemoglobin synthesis","Mild GI upset, dark stools","Hemochromatosis, non-iron-deficiency anemia"],
+"Folic acid":["Provides folate for DNA synthesis and red cell maturation","Rare: nausea, allergy","Untreated B12 deficiency (can mask it)"],
+"Cyanocobalamin":["Cofactor for DNA synthesis and myelin maintenance","Injection pain, rare allergy, low K+ early in therapy","Cobalt allergy, Leber disease"],
+"Iron sucrose":["Delivers iron to transferrin and bone marrow","Low BP, metallic taste, rare allergy","Iron overload, non-iron-deficiency anemia"],
+"Isoniazid":["Inhibits mycolic acid synthesis in the mycobacterial cell wall","Hepatitis, peripheral neuropathy","Active liver disease, alcoholism; give pyridoxine"],
+"Rifampicin":["Inhibits bacterial DNA-dependent RNA polymerase","Orange body fluids, hepatitis, many drug interactions","Jaundice; caution with HIV drugs, OCPs, warfarin"],
+"Pyrazinamide":["Pyrazinoic acid disrupts membrane energetics in acidic pH","Hepatotoxicity, high uric acid, joint pain","Gout, severe liver disease"],
+"Ethambutol":["Inhibits arabinosyl transferase (cell wall arabinogalactan)","Optic neuritis (colour vision loss)","Optic neuritis; adjust dose in kidney disease"],
+"Pyridoxine":["Cofactor in amino acid and neurotransmitter metabolism","Neuropathy at very high doses","Interferes with levodopa when given alone"],
+"Codeine":["Acts on mu-opioid receptors in the medulla, depressing the cough reflex","Constipation, sedation, respiratory depression, dependence","Children under 12, asthma, breastfeeding, respiratory depression"],
+"Butamirate":["Depresses the cough centre; mild bronchodilator effect","Drowsiness, nausea, rash","First trimester; caution in wet cough"],
+"Noscapine":["Suppresses the cough centre without opioid effects","Nausea, headache, drowsiness","Pregnancy, with warfarin, wet cough"],
+"Bromhexine":["Breaks down mucopolysaccharide fibres, thinning sputum","Nausea, rash","Peptic ulcer; caution in asthma"],
+"Guaifenesin":["Increases respiratory fluid, loosening mucus","Nausea, drowsiness","Persistent cough with asthma or emphysema without advice"]};
+function xi(n){return X[n]||X[n.replace(/ \(.*\)$/,'')]}
+function xr(n,cls){var x=xi(n);if(!x)return '';return '<div class="'+(cls?'cardx':'')+'">'+(cls&&x[3]?'<div class="x"><b>Class:</b> '+x[3]+'</div>':'')+'<div class="x"><b>Mechanism:</b> '+x[0]+'</div><div class="x"><b>Side effects:</b> '+x[1]+'</div><div class="x"><b>Avoid in:</b> '+x[2]+'</div></div>'}
+var Z=[
+["Hypertension","High blood pressure",[
+["Amlodipine","CCB","5\u201310 mg once daily","Ankle swelling is a common side effect"],
+["Telmisartan","ARB","40\u201380 mg once daily","Avoid in pregnancy; check potassium"],
+["Losartan","ARB","50\u2013100 mg once daily","Good in diabetes with kidney protection"],
+["Enalapril","ACE inhibitor","5\u201320 mg once or twice daily","Dry cough; avoid in pregnancy"],
+["Hydrochlorothiazide","Thiazide diuretic","12.5\u201325 mg once daily (morning)","Can lower potassium and sodium"],
+["Atenolol","Beta blocker","25\u2013100 mg once daily","Avoid in asthma; do not stop suddenly"]]],
+["Type 2 Diabetes","High blood sugar",[
+["Metformin","Biguanide","500\u20131000 mg twice daily with meals","First line; avoid in severe kidney disease"],
+["Glimepiride","Sulfonylurea","1\u20134 mg once daily before breakfast","Risk of low sugar (hypoglycemia)"],
+["Sitagliptin","DPP-4 inhibitor","100 mg once daily","Weight neutral; low risk of hypoglycemia"],
+["Pioglitazone","Thiazolidinedione","15\u201330 mg once daily","Fluid retention; avoid in heart failure"],
+["Empagliflozin","SGLT2 inhibitor","10\u201325 mg once daily","Genital infections; protects heart and kidney"]]],
+["Respiratory tract infection","Bacterial chest and throat infection",[
+["Amoxicillin","Penicillin","500 mg three times daily","First choice for many mild infections"],
+["Amoxicillin + Clavulanate","Penicillin + inhibitor","625 mg twice or three times daily","Broader cover; take with food"],
+["Azithromycin","Macrolide","500 mg once daily for 3 days","Short course; QT prolongation caution"],
+["Cefixime","3rd gen cephalosporin","200 mg twice daily","Also used in UTI and typhoid"],
+["Doxycycline","Tetracycline","100 mg twice daily","Take with water; avoid in pregnancy and children"],
+["Levofloxacin","Fluoroquinolone","500\u2013750 mg once daily","Reserve use; tendon problems possible"]]],
+["Urinary tract infection (UTI)","Infection of bladder or urinary tract",[
+["Nitrofurantoin","Urinary antiseptic","100 mg twice daily for 5 days","Only for lower UTI; take with food"],
+["Ciprofloxacin","Fluoroquinolone","500 mg twice daily","Avoid in pregnancy; tendon risk"],
+["Cefixime","3rd gen cephalosporin","200 mg twice daily","Useful when others are not suitable"],
+["Fosfomycin","Phosphonic acid","3 g single dose","Convenient single sachet for uncomplicated UTI"],
+["Co-trimoxazole","Sulfonamide combination","1 DS tablet twice daily","Avoid in sulfa allergy and late pregnancy"]]],
+["Asthma","Chronic airway inflammation and spasm",[
+["Salbutamol","SABA (reliever)","100\u2013200 mcg inhaled as needed","Quick relief; tremor and fast heartbeat"],
+["Budesonide","Inhaled corticosteroid","200\u2013400 mcg inhaled twice daily","Controller; rinse mouth after use"],
+["Formoterol","LABA","6\u201312 mcg inhaled twice daily","Always used with an inhaled steroid"],
+["Montelukast","Leukotriene blocker","10 mg once daily at night","Add-on therapy; mood changes possible"],
+["Ipratropium","Anticholinergic","20\u201340 mcg inhaled 3\u20134 times daily","Used in acute attacks and COPD"],
+["Prednisolone","Oral steroid","30\u201340 mg daily for 5\u20137 days","Short course for acute attack"]]],
+["GERD and Peptic ulcer","Acid reflux and stomach ulcer",[
+["Omeprazole","PPI","20\u201340 mg once daily before breakfast","Empty stomach for best effect"],
+["Pantoprazole","PPI","40 mg once daily before breakfast","Also available as injection"],
+["Rabeprazole","PPI","20 mg once daily","Fast onset"],
+["Famotidine","H2 blocker","20 mg twice daily","Useful for night symptoms"],
+["Sucralfate","Mucosal protectant","1 g four times daily (empty stomach)","Forms a protective layer on the ulcer"],
+["Antacid (Al/Mg hydroxide)","Antacid","10\u201320 mL after meals and at bedtime","Quick but short relief"]]],
+["Allergic rhinitis","Sneezing, runny nose, itching",[
+["Cetirizine","Antihistamine","10 mg once daily","May cause mild drowsiness"],
+["Levocetirizine","Antihistamine","5 mg once daily at night","Active form of cetirizine"],
+["Fexofenadine","Antihistamine","120\u2013180 mg once daily","Non-sedating"],
+["Loratadine","Antihistamine","10 mg once daily","Low sedation"],
+["Montelukast","Leukotriene blocker","10 mg once daily at night","Helpful with asthma and rhinitis together"],
+["Chlorpheniramine","1st gen antihistamine","4 mg three times daily","Causes sleepiness; avoid when driving"]]],
+["Malaria","Plasmodium infection",[
+["Chloroquine","4-aminoquinoline","25 mg base/kg over 3 days","P. vivax; resistance common in P. falciparum"],
+["Primaquine","8-aminoquinoline","0.25\u20130.5 mg/kg daily for 14 days","Radical cure of vivax; test G6PD first"],
+["Artemether + Lumefantrine","ACT","Weight-based, 6 doses over 3 days with fatty food","First choice for falciparum"],
+["Artesunate (IV)","Artemisinin","2.4 mg/kg at 0, 12, 24 h","Severe malaria"],
+["Quinine","Cinchona alkaloid","600 mg every 8 hours (adult)","Cinchonism: ringing in ears, headache"]]],
+["Anemia","Low hemoglobin",[
+["Ferrous sulfate","Oral iron","200 mg (65 mg iron) once or twice daily","Dark stools; take with vitamin C"],
+["Ferrous ascorbate","Oral iron","100 mg iron once daily","Better tolerated by many"],
+["Folic acid","Vitamin B9","5 mg once daily","Needed in megaloblastic anemia and pregnancy"],
+["Cyanocobalamin","Vitamin B12","1000 mcg injection (schedule as advised)","Pernicious anemia and B12 deficiency"],
+["Iron sucrose","IV iron","100\u2013200 mg per dose (as per Hb deficit)","When oral iron is not tolerated or fails"]]],
+["Tuberculosis (TB)","Mycobacterium tuberculosis",[
+["Isoniazid (H)","First line","5 mg/kg daily (about 300 mg)","Liver toxicity and neuropathy; give pyridoxine"],
+["Rifampicin (R)","First line","10 mg/kg daily (about 600 mg)","Turns urine orange; interacts with many drugs"],
+["Pyrazinamide (Z)","First line","25 mg/kg daily","Raises uric acid; liver toxicity"],
+["Ethambutol (E)","First line","15\u201320 mg/kg daily","Optic neuritis: check vision and colour"],
+["Pyridoxine (B6)","Supportive vitamin","10\u201325 mg daily","Prevents isoniazid neuropathy"]]],
+["Cough","Dry cough (antitussives) and wet cough (expectorants / mucolytics)",[
+["Dextromethorphan","Antitussive (central, non-opioid)","10-20 mg every 4-6 h (max 120 mg/day)","Dry, irritating cough"],
+["Codeine","Antitussive (opioid)","10-20 mg every 4-6 h","Severe dry cough; controlled drug"],
+["Levodropropizine","Antitussive (peripheral)","60 mg three times daily","Less sedation than central agents"],
+["Butamirate","Antitussive (central, non-opioid)","15 mg three to four times daily","Dry cough, also before procedures"],
+["Noscapine","Antitussive (non-opioid)","15-30 mg three to four times daily","No pain relief or dependence"],
+["Ambroxol","Mucolytic / expectorant","30 mg two to three times daily","Wet cough with thick mucus"],
+["Bromhexine","Mucolytic","8-16 mg three times daily","Thins sputum for easy clearing"],
+["Guaifenesin","Expectorant","200-400 mg every 4 h","Loosens mucus; drink plenty of water"]]]
+];
+
+var DOC={
+"Hypertension":{"Amlodipine":"First line","Telmisartan":"First line","Losartan":"First line","Enalapril":"First line","Hydrochlorothiazide":"First line"},
+"Type 2 Diabetes":{"Metformin":"Drug of choice"},
+"Respiratory tract infection":{"Amoxicillin":"Drug of choice (mild cases)"},
+"Urinary tract infection (UTI)":{"Nitrofurantoin":"Drug of choice (lower UTI)","Fosfomycin":"First line (single dose)"},
+"Asthma":{"Salbutamol":"Drug of choice (acute attack)","Budesonide":"Drug of choice (long-term control)"},
+"GERD and Peptic ulcer":{"Omeprazole":"Drug of choice (PPI)","Pantoprazole":"Drug of choice (PPI)"},
+"Allergic rhinitis":{"Cetirizine":"First line (2nd gen)","Levocetirizine":"First line (2nd gen)","Fexofenadine":"First line (non-sedating)","Loratadine":"First line (2nd gen)"},
+"Malaria":{"Chloroquine":"Drug of choice (P. vivax)","Primaquine":"Radical cure (P. vivax)","Artemether + Lumefantrine":"Drug of choice (P. falciparum)","Artesunate":"Drug of choice (severe malaria)"},
+"Anemia":{"Ferrous sulfate":"Drug of choice (iron deficiency)","Folic acid":"Drug of choice (folate deficiency)","Cyanocobalamin":"Drug of choice (B12 deficiency)"},
+"Tuberculosis (TB)":{"Isoniazid":"First line (HRZE)","Rifampicin":"First line (HRZE)","Pyrazinamide":"First line (HRZE)","Ethambutol":"First line (HRZE)"},
+"Cough":{"Dextromethorphan":"Drug of choice (dry cough)","Ambroxol":"Drug of choice (wet cough)"}};
+var ES={
+"Hypertension":"Blood pressure stays high (140/90 or more). The heart works harder and stroke, heart and kidney damage can follow. Treated with less salt, exercise and BP-lowering drugs.",
+"Type 2 Diabetes":"The body does not use insulin well, so blood sugar stays high. Signs: thirst, frequent urine, tiredness. Treated with diet, exercise and sugar-lowering drugs.",
+"Respiratory tract infection":"Infection of nose, throat or chest. Cough, fever, sore throat. Antibiotics help only when the cause is bacterial.",
+"Urinary tract infection (UTI)":"Bacteria infect the bladder or urine passage. Burning urine, frequent urge, lower belly pain. More common in women.",
+"Asthma":"Air tubes in the lungs swell and tighten. Wheeze, breathlessness, cough. A reliever inhaler stops an attack; a controller inhaler is used daily.",
+"GERD and Peptic ulcer":"Stomach acid rises into the food pipe (GERD) or damages the stomach lining (ulcer). Burning chest, sour taste. Acid-reducing drugs heal it.",
+"Allergic rhinitis":"Nose reacts to dust or pollen: sneezing, runny and itchy nose. Antihistamines block histamine, the allergy chemical.",
+"Malaria":"Spread by Anopheles mosquito bite. Fever with chills, sweating, headache. The Plasmodium parasite lives in the liver and red blood cells.",
+"Anemia":"Low hemoglobin, so blood carries less oxygen. Tiredness, pale skin, breathlessness. Iron deficiency is the commonest cause.",
+"Tuberculosis (TB)":"Bacterial infection mostly of the lungs. Cough over 2 weeks, fever, weight loss. Needs a 6-month multi-drug course without gaps.",
+"Cough":"A reflex that clears the airway. Dry cough has no mucus (suppress it). Wet cough brings up mucus (loosen it, do not suppress)."};
+var NM={"Penicillin antibiotic":"Penicillin","3rd generation cephalosporin":"3rd gen cephalosporin","Macrolide antibiotic":"Macrolide","Proton pump inhibitor":"PPI","Biguanide (antidiabetic)":"Biguanide","5-HT3 antagonist (antiemetic)":"5-HT3 antagonist","Antitussive (central, non-opioid)":"Antitussive (central)"};
+var nc=c=>NM[c]||c, sn=n=>n.replace(/ \(.*\)$/,'');
+var DB={};
+D.forEach(d=>{var x=X[d[0]]||[];DB[d[0]]={n:d[0],cat:d[1],cls:nc(x[3]||''),str:d[2],forms:d[3],uses:d[4],dz:[],doses:[]}});
+Z.forEach((z,i)=>{var col=z[0]==='Cough'?'cg':['pain','abx','gi','dia'][i%4];z[2].forEach(m=>{var n=sn(m[0]),b=DB[n]||(DB[n]={n:n,cat:col,cls:nc(m[1]),str:[],forms:[],uses:[],dz:[],doses:[]});b.dz.push(z[0]);b.doses.push([z[0],m[2],m[3]])})});
+
+var GR={pain:["Pain, fever &amp; gout","--pain","--pain-t"],abx:["Antibiotics","--abx","--abx-t"],gi:["Stomach, antiemetics &amp; bowel","--gi","--gi-t"],cg:["Cough, asthma &amp; antitussive","--cg","--cg-t"],cv:["Heart, BP &amp; blood thinners","--cv","--cv-t"],dia:["Hormones, diabetes &amp; reproductive","--dia","--dia-t"],cn:["Brain &amp; mental health","--cn","--cn-t"],al:["Allergy, steroids &amp; immunity","--al","--al-t"],inf:["Anti-infectives (malaria, TB, fungal, viral)","--inf","--inf-t"],bl:["Blood, vitamins &amp; minerals","--bl","--bl-t"],em:["Anaesthesia &amp; emergency","--abx","--abx-t"]};
+cats=GR;
+var MEM={pain:"Paracetamol,Ibuprofen",abx:"Amoxicillin,Cefixime,Azithromycin,Amoxicillin + Clavulanate,Doxycycline,Levofloxacin,Nitrofurantoin,Ciprofloxacin,Fosfomycin,Co-trimoxazole",dia:"Metformin,Glimepiride,Sitagliptin,Pioglitazone,Empagliflozin",gi:"Omeprazole,Ondansetron,Pantoprazole,Rabeprazole,Famotidine,Sucralfate,Antacid",cg:"Dextromethorphan,Levodropropizine,Ambroxol,Codeine,Butamirate,Noscapine,Bromhexine,Guaifenesin,Salbutamol,Budesonide,Formoterol,Montelukast,Ipratropium",cv:"Amlodipine,Telmisartan,Losartan,Enalapril,Hydrochlorothiazide,Atenolol",al:"Cetirizine,Levocetirizine,Fexofenadine,Loratadine,Chlorpheniramine,Prednisolone",inf:"Chloroquine,Primaquine,Artemether + Lumefantrine,Artesunate,Quinine,Isoniazid,Rifampicin,Pyrazinamide,Ethambutol",bl:"Ferrous sulfate,Ferrous ascorbate,Folic acid,Cyanocobalamin,Iron sucrose,Pyridoxine"};
+
+var ND=`Diclofenac|pain|NSAID|50 mg two to three times daily after food|Pain and inflammation;Arthritis, post-operative pain|Blocks COX-1 and COX-2, lowering prostaglandins|Gastric irritation, ulcer, kidney and liver strain|Peptic ulcer, heart failure, severe kidney disease, last trimester
+Aspirin|pain|NSAID (antiplatelet)|75-150 mg daily (antiplatelet); 325-650 mg for pain|Antiplatelet (heart attack, stroke);Pain and fever|Irreversibly inhibits COX-1, blocking thromboxane A2 and platelet aggregation|Gastric bleeding, tinnitus, Reye syndrome in children|Children under 16 with viral fever, peptic ulcer, bleeding disorders, asthma
+Naproxen|pain|NSAID|250-500 mg twice daily|Arthritis, dysmenorrhea;Gout and pain|Blocks COX-1 and COX-2|GI upset, fluid retention, raised BP|Peptic ulcer, kidney disease, last trimester of pregnancy
+Tramadol|pain|Opioid analgesic (weak)|50-100 mg every 4-6 h (max 400 mg/day)|Moderate to severe pain|Mu-opioid agonist plus serotonin and noradrenaline reuptake inhibition|Nausea, dizziness, constipation, seizures, dependence|Epilepsy, with MAO inhibitors or SSRIs, respiratory depression, children under 12
+Morphine|pain|Opioid analgesic (strong)|5-10 mg every 4 h (oral / SC / IV, titrate)|Severe pain, cancer pain;MI pain, pulmonary edema|Agonist at mu-opioid receptors in brain and spinal cord|Respiratory depression, constipation, sedation, dependence|Head injury, acute asthma, respiratory depression, paralytic ileus
+Ketorolac|pain|NSAID|10 mg every 6 h oral; 15-30 mg IV/IM (max 5 days)|Short-term moderate to severe pain|Potent COX inhibitor|GI bleeding, kidney injury|Peptic ulcer, kidney disease, bleeding risk, labour, use over 5 days
+Allopurinol|pain|Xanthine oxidase inhibitor|100-300 mg once daily|Gout prevention;Hyperuricemia|Inhibits xanthine oxidase, lowering uric acid production|Rash (SJS risk), GI upset, flare at start|Acute gout attack (do not start), HLA-B*5801 carriers, severe kidney disease
+Colchicine|pain|Anti-gout (anti-mitotic)|0.5 mg two to three times daily (acute: 1 mg then 0.5 mg)|Acute gout attack|Binds tubulin, blocking neutrophil migration in joints|Diarrhea, nausea, bone marrow suppression|Severe kidney or liver disease, with strong CYP3A4 / P-gp inhibitors
+Domperidone|gi|Antiemetic (D2 blocker, peripheral)|10 mg three times daily before meals|Nausea and vomiting;Gastroparesis, bloating|Blocks peripheral D2 receptors, speeding gastric emptying|Dry mouth, QT prolongation, raised prolactin|Cardiac disease, long QT, GI bleeding or obstruction
+Metoclopramide|gi|Antiemetic (D2 blocker, prokinetic)|10 mg three times daily|Nausea and vomiting;Gastroparesis, GERD|Blocks D2 and 5-HT3 receptors, 5-HT4 agonist (prokinetic)|Drowsiness, extrapyramidal effects, restlessness|Intestinal obstruction, Parkinson disease, children (dystonia risk)
+Promethazine|gi|Antiemetic (H1 blocker)|25 mg at night or 12.5-25 mg three times daily|Motion sickness, vomiting;Allergy, sedation|Blocks H1, muscarinic and D2 receptors|Sedation, dry mouth, urinary retention|Children under 2, glaucoma, enlarged prostate; avoid driving
+Loperamide|gi|Antidiarrheal (opioid)|4 mg first dose, then 2 mg after each loose stool (max 16 mg/day)|Acute non-infective diarrhea|Mu-opioid agonist in gut, reducing motility|Constipation, abdominal cramps|Bloody diarrhea, dysentery, children under 2, ileus
+Lactulose|gi|Osmotic laxative|15-30 mL once or twice daily|Constipation;Hepatic encephalopathy|Draws water into the bowel; lowers colonic pH, trapping ammonia|Gas, bloating, cramps|Galactosemia, intestinal obstruction
+Ceftriaxone|abx|3rd gen cephalosporin|1-2 g IV/IM once daily|Meningitis, typhoid, severe infections;Gonorrhea (single dose)|Inhibits bacterial cell wall synthesis|Diarrhea, biliary sludge, rash|Cephalosporin allergy, neonates with calcium infusions, jaundiced newborns
+Gentamicin|abx|Aminoglycoside|5-7 mg/kg IV once daily|Serious gram-negative infections;Sepsis (with other drugs)|Binds 30S ribosome, causing misreading and a bactericidal effect|Nephrotoxicity, ototoxicity|Pregnancy, myasthenia gravis, existing kidney or hearing damage
+Metronidazole|abx|Nitroimidazole|400 mg three times daily (500 mg for amoebiasis)|Amoebiasis, giardiasis;Anaerobic infections, bacterial vaginosis|Reduced to radicals that damage microbial DNA|Metallic taste, nausea, disulfiram-like reaction with alcohol|Alcohol use, first trimester, CNS disease
+Clindamycin|abx|Lincosamide|150-450 mg every 6 h|Skin, bone and anaerobic infections;Alternative in penicillin allergy|Binds 50S ribosome, blocking protein synthesis|Diarrhea, C. difficile colitis|History of colitis, lincosamide allergy
+Fluconazole|inf|Azole antifungal|150 mg single dose (candidiasis); 200-400 mg daily (systemic)|Candidiasis;Cryptococcal meningitis|Blocks fungal CYP51, so ergosterol is not made|Nausea, liver enzyme rise, QT prolongation|Liver disease, with QT-prolonging drugs, pregnancy
+Acyclovir|inf|Antiviral (nucleoside)|200-400 mg five times daily (herpes simplex); 800 mg for zoster|Herpes simplex, zoster;Chickenpox|Activated by viral thymidine kinase; blocks viral DNA polymerase|Nausea, headache, kidney injury (IV)|Kidney disease (adjust dose), dehydration
+Albendazole|inf|Anthelmintic|400 mg single dose (most worms)|Roundworm, hookworm, whipworm;Neurocysticercosis (longer course)|Binds beta-tubulin, blocking worm glucose uptake|Abdominal pain, headache, liver enzyme rise|Pregnancy, children under 2, liver disease
+Ivermectin|inf|Antiparasitic|200 mcg/kg single dose|Strongyloidiasis, scabies;Onchocerciasis|Opens glutamate-gated chloride channels, paralysing parasites|Itching, dizziness, Mazzotti reaction|Pregnancy, children under 15 kg, loiasis co-infection
+Furosemide|cv|Loop diuretic|20-80 mg once or twice daily|Edema, heart failure;Pulmonary edema|Blocks Na-K-2Cl cotransporter in loop of Henle|Low K+, low Na+, dehydration, ototoxicity|Anuria, severe electrolyte depletion, sulfa allergy
+Spironolactone|cv|K-sparing diuretic|25-100 mg once daily|Heart failure, ascites;Resistant hypertension, hyperaldosteronism|Blocks aldosterone receptors in the collecting duct|High potassium, gynecomastia|High potassium, Addison disease, severe kidney failure
+Metoprolol|cv|Beta blocker|25-100 mg twice daily|Hypertension, angina;Heart failure, post-MI|Selective beta-1 blockade slows heart rate and contractility|Fatigue, bradycardia, cold hands|Asthma, heart block, severe bradycardia; do not stop suddenly
+Atorvastatin|cv|Statin|10-80 mg once daily (night)|High cholesterol;Cardiovascular risk reduction|Inhibits HMG-CoA reductase, lowering cholesterol synthesis|Muscle pain (myopathy), liver enzyme rise|Active liver disease, pregnancy, breastfeeding
+Clopidogrel|cv|Antiplatelet (P2Y12)|75 mg once daily|After stent or MI;Ischemic stroke|Irreversibly blocks the P2Y12 ADP receptor on platelets|Bleeding, bruising|Active bleeding, severe liver disease; stop before surgery as advised
+Warfarin|cv|Oral anticoagulant|2-5 mg daily, adjusted to INR|DVT, pulmonary embolism;Atrial fibrillation, mechanical valves|Blocks vitamin K epoxide reductase (factors II, VII, IX, X)|Bleeding, skin necrosis, many interactions|Pregnancy, active bleeding, uncontrolled hypertension
+Isosorbide mononitrate|cv|Nitrate|20-40 mg two to three times daily|Angina prevention;Heart failure (with hydralazine)|Releases nitric oxide, dilating veins and lowering preload|Headache, flushing, low BP|With sildenafil, severe anemia, low BP
+Insulin (regular)|dia|Hormone (insulin)|0.5-1 unit/kg/day divided; SC before meals|Type 1 diabetes;Type 2 diabetes when needed, DKA (IV)|Binds the insulin receptor, increasing glucose uptake|Hypoglycemia, weight gain, lipodystrophy|Hypoglycemia; rotate injection sites
+Gliclazide|dia|Sulfonylurea|40-160 mg once or twice daily|Type 2 diabetes|Closes pancreatic K-ATP channels, increasing insulin release|Hypoglycemia, weight gain|Type 1 diabetes, ketoacidosis, severe liver or kidney disease
+Levothyroxine|dia|Thyroid hormone|50-200 mcg once daily on empty stomach|Hypothyroidism|Replaces T4, which is converted to active T3|Palpitations, tremor, weight loss if overdosed|Untreated adrenal insufficiency, recent MI; keep apart from iron and calcium
+Carbimazole|dia|Antithyroid|20-40 mg daily, then lower|Hyperthyroidism (Graves)|Blocks thyroid peroxidase, stopping hormone synthesis|Agranulocytosis, rash, hypothyroidism|First trimester, blood disorders; report sore throat
+Diazepam|cn|Benzodiazepine|2-10 mg two to four times daily; 10 mg IV in seizures|Anxiety, status epilepticus;Muscle spasm, alcohol withdrawal|Enhances GABA-A receptor chloride channel opening|Drowsiness, dependence, respiratory depression|Respiratory depression, sleep apnea, myasthenia gravis, alcohol use
+Phenytoin|cn|Antiepileptic (Na channel)|300 mg once daily (3-4 mg/kg)|Generalized tonic-clonic seizures;Focal seizures|Blocks voltage-gated sodium channels|Gum overgrowth, hirsutism, ataxia, nystagmus|Heart block, pregnancy (teratogenic), liver disease
+Carbamazepine|cn|Antiepileptic (Na channel)|200-400 mg two to three times daily|Focal seizures, trigeminal neuralgia;Bipolar disorder|Blocks voltage-gated sodium channels|Dizziness, hyponatremia, rash (SJS), blood changes|AV block, bone marrow disease, HLA-B*1502 carriers
+Sodium valproate|cn|Antiepileptic (broad)|500-1000 mg daily in divided doses|Generalized and absence seizures;Bipolar disorder, migraine prevention|Raises GABA, blocks sodium and T-type calcium channels|Weight gain, tremor, hepatotoxicity, neural tube defects|Liver disease, pregnancy, mitochondrial disorders
+Levetiracetam|cn|Antiepileptic|500-1500 mg twice daily|Focal and generalized seizures|Binds synaptic vesicle protein SV2A|Drowsiness, irritability, mood changes|Adjust dose in kidney disease; caution in depression
+Fluoxetine|cn|SSRI antidepressant|20-40 mg once daily (morning)|Depression, OCD;Bulimia, panic disorder|Blocks serotonin reuptake (SERT)|Nausea, insomnia, sexual dysfunction|With MAO inhibitors, bipolar mania; caution with other serotonergic drugs
+Amitriptyline|cn|Tricyclic antidepressant|25-75 mg at night|Depression;Neuropathic pain, migraine prevention|Blocks serotonin and noradrenaline reuptake; anticholinergic|Dry mouth, drowsiness, constipation, cardiac effects|Recent MI, arrhythmia, glaucoma, enlarged prostate, with MAO inhibitors
+Haloperidol|cn|Typical antipsychotic|1.5-5 mg two to three times daily|Schizophrenia, acute psychosis;Tics, severe agitation|Blocks dopamine D2 receptors|Extrapyramidal effects, QT prolongation, sedation|Parkinson disease, long QT, CNS depression, dementia in elderly
+Dexamethasone|al|Corticosteroid|0.5-10 mg daily; 4-8 mg IV in emergencies|Allergy, cerebral edema;Antiemetic with chemotherapy, asthma|Binds the glucocorticoid receptor, suppressing inflammatory genes|High sugar, fluid retention, mood change, adrenal suppression|Systemic infections, uncontrolled diabetes; caution in peptic ulcer
+Calcium carbonate|bl|Calcium supplement|500-1000 mg elemental calcium daily in divided doses|Calcium deficiency, osteoporosis;Antacid|Provides elemental calcium for bone and nerve function|Constipation, bloating, high calcium|Hypercalcemia, kidney stones; keep apart from iron and levothyroxine
+Cholecalciferol|bl|Vitamin D3|1000-2000 IU daily or 60,000 IU weekly|Vitamin D deficiency, rickets;Osteoporosis|Converted to calcitriol, increasing calcium absorption|Nausea; high calcium in overdose|Hypercalcemia, vitamin D toxicity
+Tranexamic acid|bl|Antifibrinolytic|500-1000 mg two to three times daily|Heavy menstrual bleeding;Bleeding after surgery or trauma|Blocks lysine sites on plasminogen, preventing clot breakdown|Nausea, diarrhea, rare clots|Active thromboembolism, seizure history, kidney impairment (adjust)`;
+ND.split('\n').forEach(l=>{var f=l.split('|');DB[f[0]]={n:f[0],cat:f[1],cls:f[2],str:[],forms:[],uses:f[4].split(';'),dz:[],doses:[['Dose',f[3]]]};X[f[0]]=[f[5],f[6],f[7],f[2]]});
+var DF={"Paracetamol":"500-1000 mg every 4-6 h (max 4 g/day)","Ibuprofen":"200-400 mg every 6-8 h after food","Ondansetron":"4-8 mg every 8 h (oral or IV)"};
+Object.keys(DF).forEach(n=>DB[n].doses.push(['Dose',DF[n]]));
+`Pethidine|50-100 mg IM/SC every 4 h|Severe pain, labour analgesia|Mu-opioid agonist|Respiratory depression, sedation, serotonin syndrome|With MAO inhibitors, head injury, asthma
+Fentanyl|25-100 mcg IV (anaesthesia); patch 12-100 mcg/h|Severe cancer pain, anaesthesia|Potent mu-opioid agonist|Respiratory depression, rigidity, dependence|Opioid-naive patients (patch), respiratory depression
+Febuxostat|40-80 mg once daily|Chronic gout, hyperuricemia|Inhibits xanthine oxidase (non-purine)|Gout flares, liver enzyme rise, nausea|Heart disease (caution), with azathioprine
+Mefenamic acid|250-500 mg three times daily after food|Dysmenorrhea, mild pain, fever|Blocks COX enzymes|GI upset, diarrhea, rash|Peptic ulcer, kidney disease, inflammatory bowel disease
+Ampicillin|250-500 mg every 6 h; 1-2 g IV|Respiratory, ear, UTI, Listeria meningitis|Inhibits cell wall synthesis (PBPs)|Rash, diarrhea, allergy|Penicillin allergy, infectious mononucleosis
+Cloxacillin|250-500 mg every 6 h; 1-2 g IV|Staphylococcal skin and bone infections|Beta-lactamase resistant penicillin; blocks cell wall synthesis|GI upset, rash, cholestatic jaundice|Penicillin allergy, liver disease
+Penicillin G|1-4 million units IV every 4-6 h; benzathine 1.2 MU IM|Syphilis, streptococcal throat, rheumatic fever prophylaxis|Inhibits cell wall synthesis|Allergy, anaphylaxis, injection pain|Penicillin allergy
+Cephalexin|250-500 mg every 6 h|Skin, throat and UTI infections|1st gen cephalosporin; blocks cell wall synthesis|Diarrhea, rash|Cephalosporin or severe penicillin allergy
+Cefuroxime|250-500 mg twice daily|Respiratory, ENT and UTI infections|2nd gen cephalosporin; blocks cell wall synthesis|Diarrhea, nausea, rash|Cephalosporin allergy; adjust in kidney disease
+Clarithromycin|250-500 mg twice daily|H. pylori (combination), respiratory infections|Binds 50S ribosome|Taste change, nausea, QT prolongation|Long QT, with statins or ergots, liver disease
+Erythromycin|250-500 mg four times daily|Penicillin-allergic infections, pertussis|Binds 50S ribosome|GI upset, QT prolongation, cholestasis|Liver disease, QT prolongation
+Ofloxacin|200-400 mg twice daily|UTI, typhoid, respiratory infections|Inhibits DNA gyrase|Tendon rupture, CNS effects, QT prolongation|Pregnancy, children, epilepsy
+Moxifloxacin|400 mg once daily|Pneumonia, sinusitis, resistant TB|Inhibits DNA gyrase and topoisomerase IV|QT prolongation, tendon rupture, nausea|Long QT, pregnancy, children, liver disease
+Tetracycline|250-500 mg four times daily|Acne, cholera, rickettsial infections|Binds 30S ribosome|Photosensitivity, tooth staining, GI upset|Pregnancy, children under 8, kidney disease
+Minocycline|100 mg twice daily|Acne, resistant infections|Binds 30S ribosome|Dizziness, pigmentation, hepatitis|Pregnancy, children under 8, liver disease
+Amikacin|15 mg/kg IV/IM once daily|Resistant gram-negative infections, TB|Binds 30S ribosome|Nephrotoxicity, ototoxicity|Pregnancy, kidney disease, myasthenia gravis
+Streptomycin|15 mg/kg IM daily (max 1 g)|Drug-resistant TB, plague|Binds 30S ribosome|Ototoxicity, vestibular damage, nephrotoxicity|Pregnancy, hearing loss, kidney disease
+Linezolid|600 mg twice daily|MRSA, VRE, resistant TB|Binds 23S rRNA of the 50S ribosome|Low platelets, neuropathy, serotonin syndrome|With MAO inhibitors or SSRIs, uncontrolled hypertension
+Vancomycin|15-20 mg/kg IV every 8-12 h|MRSA, severe C. difficile (oral)|Blocks cell wall synthesis at D-Ala-D-Ala|Red man syndrome, nephrotoxicity, ototoxicity|Prior allergy; monitor levels in kidney disease
+Itraconazole|100-200 mg once or twice daily with food|Tinea, onychomycosis, aspergillosis|Blocks fungal CYP51 (ergosterol)|Nausea, liver injury, heart failure|Heart failure, liver disease, pregnancy
+Terbinafine|250 mg once daily|Tinea, onychomycosis|Inhibits squalene epoxidase|GI upset, taste loss, liver injury|Liver disease, kidney impairment
+Oseltamivir|75 mg twice daily for 5 days|Influenza treatment and prophylaxis|Inhibits viral neuraminidase|Nausea, vomiting, headache|Kidney impairment (adjust dose)
+Tenofovir|300 mg once daily|HIV, hepatitis B|Nucleotide reverse transcriptase inhibitor|Kidney injury, bone density loss|Kidney disease; monitor creatinine
+Praziquantel|40 mg/kg single dose (varies by worm)|Tapeworm, schistosomiasis, neurocysticercosis|Raises calcium permeability, paralysing worms|Dizziness, abdominal pain|Ocular cysticercosis, pregnancy (caution)
+Bisacodyl|5-10 mg at night|Constipation, bowel preparation|Stimulates colonic nerves, increasing motility|Cramps, diarrhea|Intestinal obstruction, acute abdomen
+ORS|200-400 mL after each loose stool|Dehydration in diarrhea|Sodium-glucose co-transport pulls water into the body|Vomiting if given too fast|Severe dehydration with shock (needs IV fluids)
+Theophylline|200-400 mg twice daily (SR)|COPD, chronic asthma|Inhibits phosphodiesterase, blocks adenosine receptors|Nausea, tremor, arrhythmia, seizures|Seizures, arrhythmia; narrow therapeutic range
+Beclometasone|100-400 mcg inhaled twice daily|Asthma control|Inhaled steroid reducing airway inflammation|Oral thrush, hoarse voice|Not for acute attack relief
+Hydrocortisone|100-200 mg IV in emergencies; 15-20 mg/day replacement|Adrenal insufficiency, anaphylaxis, severe asthma|Binds glucocorticoid receptors|High sugar, fluid retention, infection risk|Systemic fungal infection; caution in peptic ulcer
+Nifedipine|10-20 mg slow-release twice daily|Hypertension, angina, preterm labour|Blocks L-type calcium channels|Headache, flushing, edema, reflex tachycardia|Severe aortic stenosis, unstable angina
+Diltiazem|30-90 mg three times daily|Angina, AF rate control, hypertension|Blocks L-type calcium channels in heart and vessels|Bradycardia, edema, constipation|Heart block, heart failure, with beta blockers
+Olmesartan|20-40 mg once daily|Hypertension|Blocks AT1 receptors|Dizziness, high potassium|Pregnancy, bilateral renal artery stenosis
+Ramipril|2.5-10 mg once daily|Hypertension, heart failure, post-MI|Blocks ACE|Dry cough, angioedema, high potassium|Pregnancy, angioedema history
+Lisinopril|5-40 mg once daily|Hypertension, heart failure|Blocks ACE|Dry cough, angioedema, high potassium|Pregnancy, angioedema history
+Propranolol|40-160 mg twice daily|Hypertension, migraine prevention, thyrotoxicosis|Non-selective beta blocker|Bradycardia, bronchospasm, fatigue|Asthma, heart block, severe bradycardia
+Carvedilol|3.125-25 mg twice daily|Heart failure, hypertension|Blocks beta and alpha-1 receptors|Dizziness, fatigue, bradycardia|Asthma, decompensated heart failure, heart block
+Chlorthalidone|12.5-25 mg once daily|Hypertension, edema|Blocks Na-Cl cotransporter in distal tubule|Low K+, high uric acid and sugar|Gout, severe kidney failure, sulfa allergy
+Glyceryl trinitrate|0.5 mg sublingual as needed|Acute angina attack|Releases nitric oxide, dilating veins|Headache, flushing, low BP|With sildenafil, severe anemia, low BP
+Digoxin|0.125-0.25 mg once daily|Atrial fibrillation, heart failure|Inhibits Na+/K+ ATPase: stronger beats, slower AV node|Nausea, visual changes, arrhythmia|Hypokalemia, heart block, WPW; narrow therapeutic range
+Amiodarone|200 mg daily (after loading)|Atrial fibrillation, ventricular arrhythmia|Blocks potassium channels (class III)|Thyroid dysfunction, lung fibrosis, corneal deposits|Thyroid disease, heart block, pregnancy, iodine allergy
+Rosuvastatin|5-20 mg once daily|High cholesterol, CV prevention|Inhibits HMG-CoA reductase|Myopathy, liver enzyme rise|Active liver disease, pregnancy
+Fenofibrate|145-160 mg once daily|High triglycerides|Activates PPAR-alpha|GI upset, myopathy, gallstones|Severe kidney or liver disease, gallbladder disease
+Heparin|5000 units SC every 8-12 h or IV infusion|DVT, PE, MI, prophylaxis|Activates antithrombin III, inhibiting factors Xa and IIa|Bleeding, thrombocytopenia (HIT)|Active bleeding, HIT, severe thrombocytopenia
+Rivaroxaban|10-20 mg once daily|DVT/PE, atrial fibrillation, prophylaxis|Direct factor Xa inhibitor|Bleeding, anemia|Active bleeding, severe liver disease, pregnancy
+Phytomenadione|1-10 mg IV or oral|Warfarin overdose, newborn bleeding prevention|Vitamin K cofactor for clotting factors II, VII, IX, X|Rare allergy with IV|Hypersensitivity; give IV slowly
+Insulin glargine|10 units or 0.2 units/kg once daily SC|Basal insulin in diabetes|Long-acting insulin with a flat 24 h action|Hypoglycemia, weight gain|Hypoglycemia; do not mix in the same syringe
+Insulin NPH|0.2-0.5 units/kg twice daily SC|Intermediate-acting insulin|Protamine delays insulin absorption|Hypoglycemia, weight gain|Hypoglycemia; roll the vial gently before use
+Propylthiouracil|100-150 mg three times daily|Hyperthyroidism (preferred in first trimester)|Blocks thyroid peroxidase and T4 to T3 conversion|Agranulocytosis, liver failure|Liver disease; report sore throat or jaundice
+Alprazolam|0.25-0.5 mg three times daily|Anxiety, panic disorder|Enhances GABA-A receptor action|Drowsiness, dependence, memory impairment|Respiratory depression, sleep apnea, alcohol use
+Lorazepam|0.5-2 mg two to three times daily; 4 mg IV in status epilepticus|Anxiety, status epilepticus, sedation|Enhances GABA-A receptor action|Sedation, dependence, respiratory depression|Respiratory depression, myasthenia gravis, sleep apnea
+Clonazepam|0.25-2 mg at night|Seizures, panic disorder|Enhances GABA-A receptor action|Drowsiness, dependence, ataxia|Respiratory depression, severe liver disease
+Escitalopram|10-20 mg once daily|Depression, anxiety, panic|Selective serotonin reuptake inhibition|Nausea, insomnia, sexual dysfunction, QT prolongation|With MAO inhibitors, long QT
+Sertraline|50-200 mg once daily|Depression, OCD, PTSD, panic|Selective serotonin reuptake inhibition|Nausea, diarrhea, sexual dysfunction|With MAO inhibitors, bipolar mania
+Venlafaxine|75-225 mg once daily (XR)|Depression, anxiety|Blocks serotonin and noradrenaline reuptake|Nausea, raised BP, withdrawal symptoms|With MAO inhibitors, uncontrolled hypertension
+Olanzapine|5-20 mg once daily|Schizophrenia, bipolar mania|Blocks D2 and 5-HT2A receptors|Weight gain, sedation, high sugar|Narrow-angle glaucoma; caution in diabetes
+Risperidone|2-6 mg daily|Schizophrenia, bipolar mania|Blocks D2 and 5-HT2A receptors|Extrapyramidal effects, high prolactin, weight gain|Dementia in elderly; caution in QT prolongation
+Chlorpromazine|25-100 mg three times daily|Psychosis, intractable hiccups, vomiting|Blocks D2, H1, alpha and muscarinic receptors|Sedation, low BP, extrapyramidal effects|CNS depression, Parkinson disease, dementia in elderly
+Ascorbic acid|500-1000 mg daily|Scurvy, vitamin C deficiency|Cofactor in collagen synthesis; antioxidant|Diarrhea, kidney stones at high dose|Oxalate stones, G6PD deficiency (high dose)
+Potassium chloride|600-1200 mg two to three times daily|Hypokalemia, with diuretics|Replaces potassium|Nausea, GI ulcer, hyperkalemia|Hyperkalemia, kidney failure, Addison disease
+Zinc sulfate|20 mg elemental zinc daily for 10-14 days|Childhood diarrhea, zinc deficiency|Cofactor for enzymes and immunity|Nausea, metallic taste|Copper deficiency risk with long use
+Magnesium sulfate|4 g IV loading then 1 g/h (eclampsia)|Eclampsia, hypomagnesemia, torsades|Blocks NMDA and calcium channels|Loss of reflexes, respiratory depression, low BP|Myasthenia gravis, heart block, kidney failure
+Baclofen|5-20 mg three times daily|Spasticity, muscle spasm|GABA-B agonist in spinal cord|Drowsiness, weakness, withdrawal seizures|Epilepsy (caution), kidney impairment; never stop suddenly
+Tizanidine|2-4 mg three times daily|Muscle spasm, spasticity|Alpha-2 agonist reducing spinal motor tone|Drowsiness, dry mouth, low BP|Liver disease; with ciprofloxacin or fluvoxamine
+Thiocolchicoside|4-8 mg twice daily|Painful muscle spasm|Acts on GABA-A and glycine receptors|Drowsiness, diarrhea, seizures|Pregnancy, epilepsy, flaccid paralysis
+Tamsulosin|0.4 mg once daily after a meal|Benign prostatic hyperplasia|Blocks alpha-1A receptors in the prostate|Dizziness, retrograde ejaculation, low BP|Orthostatic hypotension; sulfa allergy caution
+Finasteride|5 mg once daily|Benign prostatic hyperplasia|Inhibits 5-alpha reductase|Low libido, erectile dysfunction|Women and children; pregnant women must not handle crushed tablets
+Doxazosin|1-8 mg once daily|BPH, hypertension|Blocks alpha-1 receptors|First-dose hypotension, dizziness|History of syncope; start at a low dose
+Sumatriptan|50-100 mg at onset (max 200 mg/day)|Acute migraine|5-HT1B/1D agonist, constricts cranial vessels|Chest tightness, tingling, drowsiness|Coronary disease, uncontrolled hypertension, with ergots
+Rizatriptan|10 mg at onset|Acute migraine|5-HT1B/1D agonist|Dizziness, chest tightness|Coronary disease, hypertension, with MAO inhibitors
+Flunarizine|5-10 mg at night|Migraine prevention, vertigo|Blocks calcium channels; antihistaminic|Weight gain, sedation, depression|Depression, Parkinson disease
+Levodopa + Carbidopa|100/25 mg three times daily|Parkinson disease|Levodopa becomes dopamine; carbidopa blocks peripheral decarboxylase|Nausea, dyskinesia, hypotension|Narrow-angle glaucoma, with MAO inhibitors, melanoma
+Trihexyphenidyl|1-2 mg three times daily|Parkinsonism, drug-induced EPS|Blocks muscarinic receptors in the brain|Dry mouth, constipation, confusion|Glaucoma, enlarged prostate, elderly
+Donepezil|5-10 mg at night|Alzheimer disease|Inhibits acetylcholinesterase|Nausea, diarrhea, bradycardia|Heart block, asthma, peptic ulcer
+Dicyclomine|10-20 mg three times daily|IBS, abdominal colic|Blocks muscarinic receptors in gut|Dry mouth, blurred vision, constipation|Glaucoma, enlarged prostate, ileus
+Hyoscine butylbromide|10-20 mg three to four times daily|Abdominal colic, spasm|Blocks muscarinic receptors in gut|Dry mouth, tachycardia, urinary retention|Glaucoma, myasthenia gravis, megacolon
+Drotaverine|40-80 mg three times daily|Colic, dysmenorrhea|Inhibits phosphodiesterase-4 in smooth muscle|Dizziness, low BP, nausea|Severe liver or kidney disease, heart block
+Oxytocin|10 units IM or 20-40 units in IV infusion|Labour induction, postpartum hemorrhage|Stimulates oxytocin receptors, contracting the uterus|Water intoxication, uterine hyperstimulation|Fetal distress, cephalopelvic disproportion
+Misoprostol|600 mcg oral or sublingual (PPH); 200 mcg for ulcer|Postpartum hemorrhage, abortion, NSAID ulcer|Prostaglandin E1 analogue|Diarrhea, cramps, bleeding|Pregnancy (except obstetric use)
+Methylergometrine|0.2 mg IM/IV|Postpartum hemorrhage|Contracts uterine smooth muscle (alpha, 5-HT)|Hypertension, nausea|Hypertension, pre-eclampsia, before delivery of the baby
+Levonorgestrel|1.5 mg single dose within 72 h|Emergency contraception|Delays ovulation|Nausea, irregular bleeding|Pregnancy, unexplained vaginal bleeding
+Medroxyprogesterone|150 mg IM every 3 months|Contraception, endometriosis|Progestin suppressing ovulation|Irregular bleeding, weight gain, bone loss|Breast cancer, liver disease, pregnancy
+Estradiol valerate|1-2 mg daily|Menopause symptoms, hypogonadism|Estrogen receptor agonist|Nausea, clots, breast tenderness|Breast cancer, clot history, liver disease
+Ketamine|1-2 mg/kg IV; 4-8 mg/kg IM|Anaesthesia induction, analgesia|NMDA receptor antagonist|Hallucinations, raised BP and ICP|Raised ICP, hypertension, psychosis
+Propofol|1.5-2.5 mg/kg IV|Anaesthesia induction and sedation|Enhances GABA-A receptor action|Low BP, apnea, injection pain|Egg or soy allergy (caution), hypotension
+Thiopentone|3-5 mg/kg IV|Anaesthesia induction, seizure control|Enhances GABA-A receptor action|Respiratory depression, low BP|Porphyria, severe hypotension
+Lignocaine|Up to 4.5 mg/kg local infiltration; 1-1.5 mg/kg IV for VT|Local anaesthesia, ventricular arrhythmia|Blocks voltage-gated sodium channels|Dizziness, seizures, arrhythmia at high dose|Heart block, severe liver disease
+Bupivacaine|Up to 2 mg/kg local infiltration|Long-acting local and spinal anaesthesia|Blocks voltage-gated sodium channels|Cardiotoxicity, CNS toxicity|IV regional anaesthesia, severe heart block
+Adrenaline|0.5 mg IM (1:1000) in anaphylaxis|Anaphylaxis, cardiac arrest, croup|Stimulates alpha and beta adrenergic receptors|Palpitations, tremor, hypertension, arrhythmia|No absolute contraindication in emergencies
+Atropine|0.6-1.2 mg IV; 2-4 mg in organophosphate poisoning|Bradycardia, organophosphate poisoning, pre-anaesthesia|Blocks muscarinic receptors|Dry mouth, tachycardia, urinary retention, blurred vision|Glaucoma, tachycardia, urinary obstruction (non-emergency)
+Naloxone|0.4-2 mg IV/IM, repeat|Opioid overdose reversal|Competitive mu-opioid antagonist|Withdrawal symptoms, short duration|Caution in opioid-dependent patients
+Flumazenil|0.2 mg IV, repeat up to 1 mg|Benzodiazepine overdose reversal|Competitive antagonist at the benzodiazepine site of GABA-A|Seizures, agitation, nausea|Epilepsy, long-term benzodiazepine users, mixed tricyclic overdose
+N-acetylcysteine|150 mg/kg IV over 1 h then infusion|Paracetamol poisoning, mucolytic|Restores glutathione, detoxifying NAPQI|Nausea, anaphylactoid reaction|Hypersensitivity; give early (within 8-10 h)
+Methotrexate|7.5-25 mg once weekly|Rheumatoid arthritis, psoriasis, cancer|Inhibits dihydrofolate reductase|Mouth ulcers, bone marrow suppression, liver toxicity|Pregnancy, liver disease, severe kidney disease; give folic acid
+Hydroxychloroquine|200-400 mg daily|Rheumatoid arthritis, lupus, malaria prophylaxis|Interferes with lysosomal function and antigen processing|Nausea, retinopathy (long use), rash|Retinal disease; yearly eye check
+Azathioprine|1-2.5 mg/kg daily|Transplant rejection, autoimmune disease|Purine antimetabolite suppressing lymphocytes|Bone marrow suppression, liver toxicity, infection|TPMT deficiency; reduce dose with allopurinol
+Esomeprazole|20-40 mg once daily|GERD, ulcer, H. pylori regimens|Irreversibly blocks the proton pump|Headache, diarrhea; long use: low Mg and B12|Caution in liver disease; avoid long unsupervised use`.split('\n').forEach(l=>{var f=l.split('|');DB[f[0]]={n:f[0],cat:'pain',cls:'',str:[],forms:[],uses:f[2].split(', '),dz:[],doses:[['Dose',f[1]]]};X[f[0]]=[f[3],f[4],f[5],'']});
+`pain|NSAIDs & paracetamol=Paracetamol,Ibuprofen,Diclofenac,Naproxen,Ketorolac,Aspirin,Mefenamic acid;Opioid analgesics=Tramadol,Morphine,Codeine,Pethidine,Fentanyl;Anti-gout drugs=Allopurinol,Colchicine,Febuxostat;Muscle relaxants=Baclofen,Tizanidine,Thiocolchicoside
+abx|Penicillins=Amoxicillin,Amoxicillin + Clavulanate,Ampicillin,Cloxacillin,Penicillin G;Cephalosporins=Cefixime,Ceftriaxone,Cephalexin,Cefuroxime;Macrolides=Azithromycin,Clarithromycin,Erythromycin;Fluoroquinolones=Levofloxacin,Ciprofloxacin,Ofloxacin,Moxifloxacin;Tetracyclines=Doxycycline,Tetracycline,Minocycline;Aminoglycosides=Gentamicin,Amikacin,Streptomycin;Other antibacterials=Nitrofurantoin,Fosfomycin,Co-trimoxazole,Metronidazole,Clindamycin,Linezolid,Vancomycin
+inf|Antifungals=Fluconazole,Itraconazole,Terbinafine;Antivirals=Acyclovir,Oseltamivir,Tenofovir;Anthelmintics=Albendazole,Ivermectin,Praziquantel;Antimalarials=Chloroquine,Primaquine,Artemether + Lumefantrine,Artesunate,Quinine;Antitubercular drugs=Isoniazid,Rifampicin,Pyrazinamide,Ethambutol
+gi|Proton pump inhibitors=Omeprazole,Pantoprazole,Rabeprazole,Esomeprazole;H2 blockers, antacids & protectants=Famotidine,Sucralfate,Antacid;Antiemetics=Ondansetron,Domperidone,Metoclopramide,Promethazine;Laxatives & antidiarrheals=Loperamide,Lactulose,Bisacodyl,ORS;Antispasmodics=Dicyclomine,Hyoscine butylbromide,Drotaverine
+cg|Antitussives=Dextromethorphan,Levodropropizine,Butamirate,Noscapine;Expectorants & mucolytics=Ambroxol,Bromhexine,Guaifenesin;Bronchodilators=Salbutamol,Formoterol,Ipratropium,Theophylline;Asthma controllers=Budesonide,Montelukast,Beclometasone
+cv|Calcium channel blockers=Amlodipine,Nifedipine,Diltiazem;ARBs=Telmisartan,Losartan,Olmesartan;ACE inhibitors=Enalapril,Ramipril,Lisinopril;Beta blockers=Atenolol,Metoprolol,Propranolol,Carvedilol;Diuretics=Hydrochlorothiazide,Furosemide,Spironolactone,Chlorthalidone;Nitrates & cardiac drugs=Isosorbide mononitrate,Glyceryl trinitrate,Digoxin,Amiodarone;Lipid-lowering drugs=Atorvastatin,Rosuvastatin,Fenofibrate;Clotting drugs=Clopidogrel,Warfarin,Heparin,Rivaroxaban,Tranexamic acid,Phytomenadione
+dia|Oral antidiabetics=Metformin,Glimepiride,Sitagliptin,Pioglitazone,Empagliflozin,Gliclazide;Insulins=Insulin (regular),Insulin glargine,Insulin NPH;Thyroid drugs=Levothyroxine,Carbimazole,Propylthiouracil;Prostate drugs (BPH)=Tamsulosin,Finasteride,Doxazosin;Obstetric drugs=Oxytocin,Misoprostol,Methylergometrine;Sex hormones & contraceptives=Levonorgestrel,Medroxyprogesterone,Estradiol valerate
+cn|Antiepileptics=Phenytoin,Carbamazepine,Sodium valproate,Levetiracetam;Benzodiazepines=Diazepam,Alprazolam,Lorazepam,Clonazepam;Antidepressants=Fluoxetine,Amitriptyline,Escitalopram,Sertraline,Venlafaxine;Antipsychotics=Haloperidol,Olanzapine,Risperidone,Chlorpromazine;Antimigraine drugs=Sumatriptan,Rizatriptan,Flunarizine;Antiparkinson & anti-dementia=Levodopa + Carbidopa,Trihexyphenidyl,Donepezil
+al|H1 antihistamines=Cetirizine,Levocetirizine,Fexofenadine,Loratadine,Chlorpheniramine;Corticosteroids=Prednisolone,Dexamethasone,Hydrocortisone;Immunosuppressants & DMARDs=Methotrexate,Hydroxychloroquine,Azathioprine
+bl|Iron preparations=Ferrous sulfate,Ferrous ascorbate,Iron sucrose;Vitamins=Folic acid,Cyanocobalamin,Pyridoxine,Cholecalciferol,Ascorbic acid;Minerals & electrolytes=Calcium carbonate,Potassium chloride,Zinc sulfate,Magnesium sulfate
+em|Anaesthetics=Ketamine,Propofol,Thiopentone,Lignocaine,Bupivacaine;Emergency drugs & antidotes=Adrenaline,Atropine,Naloxone,Flumazenil,N-acetylcysteine`.split('\n').forEach(l=>{var p=l.split('|');p[1].split(';').forEach(c=>{var k=c.split('=');k[1].split(',').forEach(n=>{if(DB[n]){DB[n].cat=p[0];DB[n].cls=k[0]}})})});
+`Epilepsy|Repeated brain electrical discharges cause seizures. Drugs prevent them; never stop suddenly.|Phenytoin*,Carbamazepine*,Sodium valproate*,Levetiracetam,Clonazepam
+Status epilepticus|A seizure lasting over 5 minutes is an emergency needing IV drugs.|Lorazepam*,Diazepam*,Phenytoin,Sodium valproate,Levetiracetam
+Depression|Low mood and loss of interest for weeks. SSRIs are first line and take 2-4 weeks to work.|Fluoxetine*,Escitalopram*,Sertraline*,Venlafaxine,Amitriptyline
+Anxiety and insomnia|Excess worry, restlessness and poor sleep. Benzodiazepines are for short term only.|Escitalopram*,Sertraline,Alprazolam,Lorazepam,Diazepam
+Schizophrenia|Psychosis with hallucinations and delusions. Antipsychotics block dopamine D2 receptors.|Olanzapine*,Risperidone*,Haloperidol,Chlorpromazine,Lorazepam
+Bipolar disorder|Mood swings between mania and depression. Mood stabilisers are the base of treatment.|Sodium valproate*,Carbamazepine,Olanzapine,Risperidone,Haloperidol
+Migraine|Throbbing one-sided headache with nausea. Treat early; give prevention if frequent.|Sumatriptan*,Rizatriptan,Paracetamol,Naproxen,Propranolol,Flunarizine
+Gout|Uric acid crystals inflame joints, often the big toe. Treat the attack, then lower uric acid.|Colchicine*,Naproxen*,Allopurinol,Febuxostat,Prednisolone
+Rheumatoid arthritis|Autoimmune joint inflammation with morning stiffness. DMARDs slow the disease.|Methotrexate*,Hydroxychloroquine*,Azathioprine,Prednisolone,Diclofenac
+Pain|An unpleasant sensation; follow the pain ladder from mild to severe.|Paracetamol*,Ibuprofen,Diclofenac,Tramadol,Morphine*
+Fever and headache|Raised body temperature or head pain, usually from a viral illness.|Paracetamol*,Ibuprofen,Mefenamic acid,Diclofenac,Aspirin
+Low back pain and muscle spasm|Painful tight back muscles. Move early and use a short course of drugs.|Diclofenac*,Paracetamol*,Baclofen,Tizanidine,Thiocolchicoside
+Dysmenorrhea|Painful periods caused by prostaglandins.|Mefenamic acid*,Ibuprofen*,Naproxen,Drotaverine,Diclofenac
+Nausea and vomiting|A protective reflex triggered by gut, brain or drugs. Pick the antiemetic by cause.|Ondansetron*,Domperidone,Metoclopramide,Promethazine,Dexamethasone
+Diarrhea|Loose stools more than 3 times a day. Replace fluids first; antibiotics only if needed.|ORS*,Zinc sulfate*,Loperamide,Ciprofloxacin,Metronidazole
+Abdominal colic and IBS|Cramping gut pain from muscle spasm.|Dicyclomine*,Hyoscine butylbromide*,Drotaverine*,Loperamide,Lactulose
+Dyspepsia and acidity|Burning upper belly pain after food.|Antacid*,Omeprazole*,Famotidine,Domperidone,Sucralfate
+H. pylori peptic ulcer|H. pylori bacteria weaken the stomach lining. Triple therapy for 14 days.|Omeprazole*,Amoxicillin*,Clarithromycin*,Metronidazole,Esomeprazole
+Typhoid|Salmonella Typhi infection: long fever and belly pain from dirty food or water.|Ceftriaxone*,Azithromycin*,Cefixime,Ciprofloxacin,Ofloxacin
+Pneumonia|Lung infection filling air sacs with fluid: fever, cough, breathlessness.|Amoxicillin*,Amoxicillin + Clavulanate,Azithromycin,Ceftriaxone,Levofloxacin
+Tonsillitis and pharyngitis|Sore red throat; streptococcal cases need penicillin.|Penicillin G*,Amoxicillin*,Azithromycin,Cephalexin,Erythromycin
+Otitis media and sinusitis|Infection of the middle ear or sinuses after a cold.|Amoxicillin*,Amoxicillin + Clavulanate,Cefuroxime,Azithromycin,Cefixime
+Common cold|A self-limiting viral infection. Treat symptoms only; antibiotics do not help.|Paracetamol*,Cetirizine,Chlorpheniramine,Dextromethorphan,Guaifenesin
+Pyelonephritis|Kidney infection with fever and flank pain; needs stronger antibiotics.|Ceftriaxone*,Ciprofloxacin,Gentamicin,Amikacin,Levofloxacin
+Skin and soft tissue infection|Bacterial infection of skin such as boils and cellulitis.|Cloxacillin*,Cephalexin*,Clindamycin,Doxycycline,Linezolid
+Osteomyelitis|A bone infection needing weeks of antibiotics.|Cloxacillin*,Clindamycin,Vancomycin,Ciprofloxacin,Linezolid
+Meningitis and sepsis|Life-threatening infections; start IV antibiotics at once.|Ceftriaxone*,Vancomycin*,Gentamicin,Amikacin,Dexamethasone
+Sexually transmitted infections|Syphilis, gonorrhea and chlamydia; treat partners too.|Penicillin G*,Ceftriaxone*,Doxycycline,Azithromycin,Metronidazole
+Hypertension with diabetes|High BP with diabetes; ACE inhibitors and ARBs protect the kidney.|Telmisartan*,Losartan*,Ramipril*,Lisinopril,Amlodipine
+Heart failure|The heart cannot pump enough blood: breathlessness and ankle swelling.|Furosemide*,Spironolactone*,Ramipril*,Metoprolol*,Digoxin,Carvedilol
+Angina|Chest pain from reduced heart blood flow during effort.|Glyceryl trinitrate*,Isosorbide mononitrate,Metoprolol,Amlodipine,Aspirin,Atorvastatin
+Myocardial infarction|Heart attack from a blocked coronary artery. Time is muscle.|Aspirin*,Clopidogrel*,Heparin*,Atorvastatin*,Morphine,Metoprolol
+Atrial fibrillation|An irregular fast heartbeat with a risk of clots.|Metoprolol*,Diltiazem,Digoxin,Amiodarone,Warfarin*,Rivaroxaban*
+Ischemic stroke|A clot blocks brain blood flow. Prevent with antiplatelets and statins.|Aspirin*,Clopidogrel*,Atorvastatin*,Warfarin,Rivaroxaban
+Edema|Fluid collects in tissues from heart, kidney or liver disease.|Furosemide*,Hydrochlorothiazide,Spironolactone,Chlorthalidone,Potassium chloride
+Cardiac arrest|The heart stops pumping; CPR first, then drugs.|Adrenaline*,Amiodarone*,Atropine,Lignocaine,Magnesium sulfate
+Anaphylaxis|A severe allergic reaction with swelling and low BP. Give adrenaline IM first.|Adrenaline*,Hydrocortisone,Chlorpheniramine,Dexamethasone,Salbutamol
+Urticaria|Itchy raised skin wheals caused by histamine.|Cetirizine*,Levocetirizine*,Fexofenadine,Loratadine,Prednisolone
+COPD|Long-term airflow blockage, mostly from smoking.|Salbutamol*,Ipratropium*,Formoterol,Theophylline,Budesonide,Prednisolone
+Acute severe asthma|An asthma attack not relieved by the usual inhaler; treat in hospital.|Salbutamol*,Ipratropium,Hydrocortisone*,Prednisolone,Theophylline
+Poisoning and overdose|Use the specific antidote quickly.|Naloxone*,Atropine*,N-acetylcysteine*,Flumazenil,Phytomenadione
+Vitamin and mineral deficiency|Low vitamin or mineral levels cause weakness, bone and skin problems.|Cholecalciferol*,Calcium carbonate*,Ascorbic acid,Zinc sulfate,Folic acid,Cyanocobalamin`.split('\n').forEach(l=>{var f=l.split('|'),nm=f[0],dc={};ES[nm]=f[1];DOC[nm]=dc;
+ var meds=f[2].split(',').map(t=>{var st=t.slice(-1)==='*',n=st?t.slice(0,-1):t,b=DB[n];if(st)dc[sn(n)]='Drug of choice';b.dz.push(nm);return [n,b.cls,b.doses.length?b.doses[0][1]:'',b.uses[0]||'']});
+ Z.push([nm,'Clinical condition',meds])});
+var st=document.getElementById('stats'),nm=Object.keys(DB);
+st.innerHTML='<div class="st"><b>'+nm.length+'</b>drugs</div><div class="st"><b>'+new Set(nm.map(n=>DB[n].cls)).size+'</b>classes</div><div class="st"><b>'+Z.length+'</b>diseases</div>';
+var V=document.getElementById('view'),Q=document.getElementById('q'),tab='drugs',q='';
+var col=b=>{var c=cats[b.cat]||cats.pain;return 'style="--c:var('+c[1]+');--t:var('+c[2]+')"'};
+var has=(t)=>!q||t.toLowerCase().indexOf(q)>-1;
+function drugCard(b){return '<article class="card" '+col(b)+'><div class="top"><h2>'+b.n+'</h2><span class="cat">'+b.cls+'</span></div>'+
+ (b.str.length?'<div class="strengths">'+b.str.map(s=>'<span class="pill">'+s+'</span>').join('')+'</div>':'')+
+ (b.forms.length?'<div class="forms">'+b.forms.map(f=>'<span class="form">'+f+'</span>').join('')+'</div>':'')+
+ '<ul class="uses">'+b.uses.map(u=>'<li>'+u+'</li>').join('')+b.doses.map(d=>'<li><b>'+d[0]+':</b> '+d[1]+'</li>').join('')+'</ul>'+xr(b.n,0)+'</article>'}
+var grp='all';
+function rDrugs(){var L=Object.keys(DB).sort().filter(n=>{var b=DB[n];return (grp==='all'||b.cat===grp)&&has(n+' '+b.cls+' '+GR[b.cat][0]+' '+b.uses.join(' ')+' '+b.dz.join(' '))});
+ V.innerHTML='<div class="chips">'+['all'].concat(Object.keys(GR)).map(k=>'<button class="chip" data-g="'+k+'" aria-pressed="'+(grp===k)+'" style="--c:var('+(k==='all'?'--ink':GR[k][1])+')">'+(k==='all'?'All':'<i></i>'+GR[k][0])+'</button>').join('')+'</div><div class="cnt">'+L.length+' drugs (A to Z)</div><div class="grid">'+L.map(n=>drugCard(DB[n])).join('')+'</div>'}
+function rCls(){var out='',cnt=0;Object.keys(GR).forEach(g=>{var G={};Object.keys(DB).sort().filter(n=>DB[n].cat===g).forEach(n=>{(G[DB[n].cls]=G[DB[n].cls]||[]).push(n)});
+ var K=Object.keys(G).sort().filter(k=>has(k+' '+GR[g][0]+' '+G[k].join(' ')));if(!K.length)return;cnt+=K.length;
+ out+='<h3 class="gh" style="--c:var('+GR[g][1]+')">'+GR[g][0]+'</h3><div class="dzl">'+K.map(k=>'<details class="dz" style="--c:var('+GR[g][1]+')"'+(q?' open':'')+'><summary><div><div class="dzt">'+k+'</div><div class="dzd">'+G[k].length+' drug'+(G[k].length>1?'s':'')+'</div></div></summary><div class="dchips">'+G[k].map(n=>'<button class="dchip" data-n="'+n+'">'+n+'</button>').join('')+'</div></details>').join('')+'</div>'});
+ V.innerHTML='<div class="cnt">'+cnt+' classes. Tap a drug to open it.</div>'+out}
+function rDz(){var L=Z.filter(z=>has(z[0]+' '+z[1]+' '+(ES[z[0]]||'')+' '+z[2].map(m=>m[0]+' '+m[1]).join(' ')));
+ V.innerHTML='<div class="cnt">'+L.length+' diseases. Drug of choice is shown first.</div><div class="dzl">'+L.map((z,i)=>{var dc=DOC[z[0]]||{},k=z[0]==='Cough'?'--cg':['--pain','--abx','--gi','--dia'][Z.indexOf(z)%4],t=k+'-t',
+ M=z[2].slice().sort((a,b)=>(dc[sn(a[0])]?0:1)-(dc[sn(b[0])]?0:1));
+ return '<details class="dz" style="--c:var('+k+');--t:var('+t+')"'+(q||i===0?' open':'')+'><summary><div><div class="dzt">'+z[0]+'</div><div class="dzd">'+z[1]+' \u00b7 '+z[2].length+' medicines</div></div></summary>'+
+ '<div class="ex"><b>In simple words:</b> '+(ES[z[0]]||'')+'</div>'+
+ M.map(m=>{var n=sn(m[0]),lb=dc[n];return '<div class="med"><div><b>'+m[0]+'</b><span class="k">'+m[1]+'</span>'+(lb?'<span class="doc">\u2605 '+lb+'</span>':'<span class="alt">Alternative</span>')+'</div><div class="dose">'+m[2]+'</div><div class="nt">'+m[3]+'</div>'+xr(m[0],0)+'</div>'}).join('')+'</details>'}).join('')+'</div>'}
+var rnd=a=>a[Math.floor(Math.random()*a.length)],shuf=a=>a.slice().sort(()=>Math.random()-.5);
+function pick(c,pool,n){var o=[c];shuf(pool).forEach(p=>{if(o.length<n&&o.indexOf(p)<0)o.push(p)});return shuf(o)}
+function gen(){var N=Object.keys(DB),C=[...new Set(N.map(n=>DB[n].cls))],t=Math.random(),n=rnd(N),b=DB[n],x;
+ if(t<.35)return{q:'Which class does '+n+' belong to?',o:pick(b.cls,C,4),a:b.cls,e:n+' is a '+b.cls+'.'};
+ if(t<.7){var m=N.filter(k=>X[k]);n=rnd(m);return{q:'Which drug works like this: '+X[n][0]+'?',o:pick(n,m,4),a:n,e:n+' ('+DB[n].cls+'): '+X[n][0]+'.'}}
+ var z=rnd(Z.filter(z=>DOC[z[0]])),d=DOC[z[0]],k=rnd(Object.keys(d));
+ return{q:'For '+z[0]+', which drug is: '+d[k]+'?',o:pick(k,N.filter(y=>!d[y]),4),a:k,e:k+' is '+d[k].toLowerCase()+' for '+z[0]+'.'}}
+var S={i:0,s:0,Q:null,done:false};
+function newQuiz(){S={i:0,s:0,Q:Array.from({length:10},gen),done:false};rQuiz()}
+function rQuiz(){if(!S.Q)return newQuiz();
+ if(S.i>=10){V.innerHTML='<div class="card" style="--c:var(--abx)"><div class="qh">Quiz finished</div><div class="big">'+S.s+' / 10</div><p>'+(S.s>=8?'Excellent! You know your drugs.':S.s>=5?'Good. Revise the weak spots and try again.':'Keep revising the All drugs and Diseases tabs, then retry.')+'</p><button class="nx" data-act="again">Play again</button></div>';return}
+ var o=S.Q[S.i];V.innerHTML='<div class="card" style="--c:var(--gi)"><div class="qh"><span>Question '+(S.i+1)+' of 10</span><span>Score '+S.s+'</span></div><p class="qq">'+o.q+'</p>'+o.o.map(x=>'<button class="opt" data-a="'+x.replace(/"/g,'&quot;')+'">'+x+'</button>').join('')+'<div id="fb"></div></div>'}
+V.addEventListener('click',e=>{var t=e.target;var gc=t.closest('.chip');if(gc){grp=gc.dataset.g;render();return}var c=t.closest('.dchip');if(c){Q.value=c.dataset.n;go('drugs');return}
+ var op=t.closest('.opt');if(op&&!S.done){S.done=true;var o=S.Q[S.i],ok=op.dataset.a===o.a;if(ok)S.s++;
+  [].forEach.call(V.querySelectorAll('.opt'),b=>{if(b.dataset.a===o.a)b.classList.add('ok');else if(b===op)b.classList.add('no')});
+  document.getElementById('fb').innerHTML='<p><b>'+(ok?'Correct! ':'Not quite. ')+'</b>'+o.e+'</p><button class="nx" data-act="next">'+(S.i>=9?'See result':'Next')+'</button>';return}
+ var a=t.closest('[data-act]');if(a){if(a.dataset.act==='again')newQuiz();else{S.i++;S.done=false;rQuiz()}}});
+function render(){q=Q.value.trim().toLowerCase();document.getElementById('sw').hidden=tab==='quiz';document.getElementById('rem').hidden=tab!=='drugs';
+ ({drugs:rDrugs,cls:rCls,dz:rDz,quiz:rQuiz})[tab]()}
+function go(v){tab=v;grp='all';[].forEach.call(document.querySelectorAll('.tab'),x=>x.setAttribute('aria-pressed',x.dataset.v===v));if(v==='quiz'&&!S.Q)S.Q=null;render();window.scrollTo(0,0)}
+[].forEach.call(document.querySelectorAll('.tab'),t=>t.onclick=()=>{if(t.dataset.v!==tab)Q.value='';go(t.dataset.v)});
+Q.addEventListener('input',render);
+document.getElementById('tb').onclick=function(){var r=document.documentElement,dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme:dark)').matches;r.dataset.theme=dark?'light':'dark'};
+render();
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
+</script>
+</body>
+</html>
